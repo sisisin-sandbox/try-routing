@@ -1,9 +1,17 @@
 import React from 'react';
-import { Route, BrowserRouter, Switch, Link, useRouteMatch } from 'react-router-dom';
+import { Redirect, Route, Router, Switch } from 'react-router-dom';
+import { useActions } from 'typeless';
+import { MatchResult } from '~/components/MatchResult';
+import { appHistory } from './appHistory';
+import { Header } from './components/Header';
+import { getSessionState, SessionActions } from './features/session/interface';
+import { useSessionModule } from './features/session/module';
 
 export const App: React.FC = () => {
+  useSessionModule();
+
   return (
-    <BrowserRouter>
+    <Router history={appHistory}>
       <Header></Header>
       <Switch>
         <Route path="/" exact>
@@ -16,13 +24,30 @@ export const App: React.FC = () => {
             <Groups></Groups>
           </InnerWrapper>
         </Route>
+        <Route path="/login">
+          <Login></Login>
+        </Route>
         <Route>
           <InnerWrapper>
             <div>not found</div>
           </InnerWrapper>
         </Route>
       </Switch>
-    </BrowserRouter>
+    </Router>
+  );
+};
+const Login: React.FC = () => {
+  const { loginSucceeded } = useActions(SessionActions);
+  const { user } = getSessionState.useState();
+
+  if (user) {
+    return <Redirect to="/"></Redirect>;
+  }
+  return (
+    <div>
+      <h3>login</h3>
+      <button onClick={() => loginSucceeded({ name: 'okina' })}>login as `okina` user</button>
+    </div>
   );
 };
 
@@ -40,25 +65,6 @@ function Home() {
     <>
       <div>slash</div>
       <MatchResult></MatchResult>
-    </>
-  );
-}
-function MatchResult() {
-  const m = useRouteMatch();
-
-  return (
-    <>
-      match result -> <pre>{JSON.stringify(m)}</pre>
-    </>
-  );
-}
-function Header() {
-  return (
-    <>
-      <MatchResult></MatchResult>
-      <Link to="/etc">etc</Link> | <Link to="/groups/list">/groups/list</Link> |{' '}
-      <Link to="/">home</Link>
-      <hr></hr>
     </>
   );
 }
