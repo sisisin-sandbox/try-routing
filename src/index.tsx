@@ -1,5 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { App } from './App';
+import { DefaultTypelessProvider } from 'typeless';
 
-ReactDOM.render(<App></App>, document.getElementById('app'));
+ReactDOM.render(
+  <DefaultTypelessProvider>
+    <App></App>
+  </DefaultTypelessProvider>,
+  document.getElementById('app'),
+);
