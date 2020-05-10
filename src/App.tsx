@@ -1,5 +1,5 @@
 import React from 'react';
-import { Redirect, Route, Router, Switch } from 'react-router-dom';
+import { Redirect, Route, Router, Switch, Link, useParams } from 'react-router-dom';
 import { useActions } from 'typeless';
 import { MatchResult } from '~/components/MatchResult';
 import { appHistory } from './appHistory';
@@ -12,20 +12,29 @@ export const App: React.FC = () => {
 
   return (
     <Router history={appHistory}>
-      <Header></Header>
       <Switch>
-        <Route path="/" exact>
-          <InnerWrapper>
-            <Home></Home>
-          </InnerWrapper>
-        </Route>
-        <Route path="/groups">
-          <InnerWrapper>
-            <Groups></Groups>
-          </InnerWrapper>
-        </Route>
         <Route path="/login">
           <Login></Login>
+        </Route>
+        <Route path="/">
+          <Header></Header>
+          <Switch>
+            <Route path="/" exact>
+              <InnerWrapper>
+                <Home></Home>
+              </InnerWrapper>
+            </Route>
+            <Route path="/groups">
+              <InnerWrapper>
+                <Groups></Groups>
+              </InnerWrapper>
+            </Route>
+            <Route>
+              <InnerWrapper>
+                <div>not found</div>
+              </InnerWrapper>
+            </Route>
+          </Switch>
         </Route>
         <Route>
           <InnerWrapper>
@@ -36,6 +45,7 @@ export const App: React.FC = () => {
     </Router>
   );
 };
+
 const Login: React.FC = () => {
   const { loginSucceeded } = useActions(SessionActions);
   const { user } = getSessionState.useState();
@@ -68,21 +78,54 @@ function Home() {
     </>
   );
 }
-function Groups() {
+const GroupsById: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
   return (
-    <>
-      <div>groups</div>
-      <Route path="/groups/list">
-        <div>
-          this is list
-          <div>
-            <MatchResult></MatchResult>
+    <div>
+      <div>id: {id}</div>
+      <div>
+        <Route path="/groups/:id/posts">
+          <div>posts</div>
+        </Route>
+      </div>
+    </div>
+  );
+};
+
+function Groups() {
+  const links = [{ path: '/groups' }, { path: '/groups/1' }, { path: '/groups/1/posts' }];
+
+  return (
+    <div style={{ display: 'flex', borderTop: '1px dashed gray' }}>
+      <div
+        style={{ flex: 'auto', maxWidth: '150px', height: '500px', borderRight: '1px dashed gray' }}
+      >
+        <div>groups page</div>
+        {links.map((l, i) => (
+          <div key={l.path}>
+            - <Link to={l.path}>{l.path}</Link>
           </div>
-        </div>
-      </Route>
-      <Route path="/groups/new">
-        <div>this is new</div>
-      </Route>
-    </>
+        ))}
+      </div>
+      <Switch>
+        <Route path="/groups" exact>
+          some content
+        </Route>
+        <Route path="/groups/list">
+          <div>
+            this is list
+            <div>
+              <MatchResult></MatchResult>
+            </div>
+          </div>
+        </Route>
+        <Route path="/groups/new">
+          <div>this is new</div>
+        </Route>
+        <Route path="/groups/:id">
+          <GroupsById></GroupsById>
+        </Route>
+      </Switch>
+    </div>
   );
 }

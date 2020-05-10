@@ -7,22 +7,23 @@ export function Header() {
   const { logout } = useActions(SessionActions);
   const links = [
     { path: '/', content: 'home' },
-    { path: '/groups/list' },
+    { path: '/groups' },
     { path: '/etc' },
-    { path: '/login' },
+    { path: '/profile' },
   ];
   return (
-    <>
-      <div>
+    <div style={{ display: 'flex', flexDirection: 'row', borderBottom: '1px solid black' }}>
+      <div style={{ flex: 'auto' }}>
+        {links.map((l, i) => (
+          <React.Fragment key={l.path}>
+            <Link to={l.path}>{l.content ?? l.path}</Link>
+            {i < links.length - 1 && ' | '}
+          </React.Fragment>
+        ))}
+      </div>
+      <div style={{ flex: 'auto', maxWidth: '100px' }}>
         <button onClick={logout}>logout</button>
       </div>
-      {links.map((l, i) => (
-        <React.Fragment key={l.path}>
-          <Link to={l.path}>{l.content ?? l.path}</Link>
-          {i < links.length - 1 && ' | '}
-        </React.Fragment>
-      ))}
-      <hr></hr>
-    </>
+    </div>
   );
 }
